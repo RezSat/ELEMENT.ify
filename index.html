@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELEMENT.ify - Periodic Text Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: #111827;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 42rem;
+            background-color: #1f2937;
+            border: 2px solid #06b6d4;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+            padding: 1.5rem;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .title-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .title {
+            color: #06b6d4;
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+        }
+
+        .version {
+            color: #0891b2;
+            font-size: 0.875rem;
+            border: 1px solid #164e63;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            background-color: rgba(6, 182, 212, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        input {
+            width: 100%;
+            height: 3rem;
+            background-color: #111827;
+            border: 1px solid #0891b2;
+            border-radius: 0.375rem;
+            padding: 0 1rem;
+            color: #e5e7eb;
+            font-size: 1rem;
+        }
+
+        input::placeholder {
+            color: #0891b2;
+            opacity: 0.7;
+        }
+
+        button {
+            width: 100%;
+            height: 3rem;
+            background-color: #0891b2;
+            border: none;
+            border-radius: 0.375rem;
+            color: #111827;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #06b6d4;
+            transform: scale(1.02);
+        }
+
+        .result {
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .result.success {
+            background-color: rgba(6, 78, 59, 0.2);
+            border: 2px solid #059669;
+        }
+
+        .result.partial {
+            background-color: rgba(120, 53, 15, 0.2);
+            border: 2px solid #d97706;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 9999px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-text {
+            font-weight: bold;
+            font-size: 1.125rem;
+        }
+
+        .success .status-dot,
+        .success .status-text {
+            background-color: #059669;
+            color: #059669;
+        }
+
+        .partial .status-dot,
+        .partial .status-text {
+            background-color: #d97706;
+            color: #d97706;
+        }
+
+        .converted-text {
+            font-family: monospace;
+            font-size: 1.5rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .success .converted-text {
+            color: #34d399;
+        }
+
+        .partial .converted-text {
+            color: #fbbf24;
+        }
+
+        .message {
+            font-size: 0.875rem;
+        }
+
+        .success .message {
+            color: #34d399;
+        }
+
+        .partial .message {
+            color: #fbbf24;
+        }
+
+        .footer {
+            text-align: center;
+            color: #0891b2;
+            font-size: 0.875rem;
+            border-top: 1px solid #164e63;
+            padding-top: 1rem;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .atom-icon {
+            width: 2rem;
+            height: 2rem;
+            animation: spin 4s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <div class="title-group">
+                <svg class="atom-icon" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12 12c-1.95 2.23-3 4.89-3 7.74m3-7.74c1.95 2.23 3 4.89 3 7.74M12 12c-1.95-2.23-3-4.89-3-7.74m3 7.74c1.95-2.23 3-4.89 3-7.74"></path>
+                </svg>
+                <h1 class="title">ELEMENT.ify</h1>
+            </div>
+            <div class="version">v2.1</div>
+        </div>
+
+        <div class="input-group">
+            <div class="input-wrapper">
+                <input type="text" id="textInput" placeholder="ENTER TEXT SEQUENCE...">
+            </div>
+            <button id="convertBtn">ANALYZE & CONVERT</button>
+        </div>
+
+        <div id="result" class="result">
+            <div class="status">
+                <div class="status-dot"></div>
+                <div class="status-text"></div>
+            </div>
+            <div class="converted-text"></div>
+            <div class="message"></div>
+        </div>
+
+        <div class="footer">
+            QUANTUM CONVERSION ENGINE | READY FOR ANALYSIS
+        </div>
+    </div>
+
+    <script>
+        const elements = {
+            'h': 'H', 'he': 'He', 'li': 'Li', 'be': 'Be', 'b': 'B', 'c': 'C', 'n': 'N', 'o': 'O', 'f': 'F', 'ne': 'Ne',
+            'na': 'Na', 'mg': 'Mg', 'al': 'Al', 'si': 'Si', 'p': 'P', 's': 'S', 'cl': 'Cl', 'ar': 'Ar', 'k': 'K',
+            'ca': 'Ca', 'sc': 'Sc', 'ti': 'Ti', 'v': 'V', 'cr': 'Cr', 'mn': 'Mn', 'fe': 'Fe', 'co': 'Co', 'ni': 'Ni',
+            'cu': 'Cu', 'zn': 'Zn', 'ga': 'Ga', 'ge': 'Ge', 'as': 'As', 'se': 'Se', 'br': 'Br', 'kr': 'Kr', 'rb': 'Rb',
+            'sr': 'Sr', 'y': 'Y', 'zr': 'Zr', 'nb': 'Nb', 'mo': 'Mo', 'tc': 'Tc', 'ru': 'Ru', 'rh': 'Rh', 'pd': 'Pd',
+            'ag': 'Ag', 'cd': 'Cd', 'in': 'In', 'sn': 'Sn', 'sb': 'Sb', 'te': 'Te', 'i': 'I', 'xe': 'Xe', 'cs': 'Cs',
+            'ba': 'Ba', 'la': 'La', 'ce': 'Ce', 'pr': 'Pr', 'nd': 'Nd', 'pm': 'Pm', 'sm': 'Sm', 'eu': 'Eu', 'gd': 'Gd',
+            'tb': 'Tb', 'dy': 'Dy', 'ho': 'Ho', 'er': 'Er', 'tm': 'Tm', 'yb': 'Yb', 'lu': 'Lu', 'hf': 'Hf', 'ta': 'Ta',
+            'w': 'W', 're': 'Re', 'os': 'Os', 'ir': 'Ir', 'pt': 'Pt', 'au': 'Au', 'hg': 'Hg', 'tl': 'Tl', 'pb': 'Pb',
+            'bi': 'Bi', 'po': 'Po', 'at': 'At', 'rn': 'Rn'
+        };
+
+        function findBestElementCombination(word) {
+            if (!word) return { result: '', fullMatch: true };
+            word = word.toLowerCase();
+            
+            const dp = Array(word.length + 1).fill(null);
+            dp[0] = { result: '', fullMatch: true };
+            
+            for (let i = 0; i < word.length; i++) {
+                if (dp[i] === null) continue;
+                
+                if (elements[word[i]]) {
+                    const newResult = {
+                        result: dp[i].result + elements[word[i]],
+                        fullMatch: dp[i].fullMatch
+                    };
+                    if (dp[i + 1] === null || dp[i + 1].result.length > newResult.result.length) {
+                        dp[i + 1] = newResult;
+                    }
+                }
+                
+                if (i + 1 < word.length) {
+                    const twoLetters = word.slice(i, i + 2);
+                    if (elements[twoLetters]) {
+                        const newResult = {
+                            result: dp[i].result + elements[twoLetters],
+                            fullMatch: dp[i].fullMatch
+                        };
+                        if (dp[i + 2] === null || dp[i + 2].result.length > newResult.result.length) {
+                            dp[i + 2] = newResult;
+                        }
+                    }
+                }
+                
+                if (dp[i + 1] === null) {
+                    dp[i + 1] = {
+                        result: dp[i].result + word[i].toUpperCase(),
+                        fullMatch: false
+                    };
+                }
+            }
+            
+            return dp[word.length] || { result: word.toUpperCase(), fullMatch: false };
+        }
+
+        function convertToElements(text) {
+            const parts = text.split(/(\s+)/);
+            let fullMatch = true;
+            let result = '';
+            
+            parts.forEach(part => {
+                if (part.trim() === '') {
+                    result += part;
+                } else {
+                    const conversion = findBestElementCombination(part);
+                    result += conversion.result;
+                    if (!conversion.fullMatch) fullMatch = false;
+                }
+            });
+            
+            return { result, fullMatch };
+        }
+
+        document.getElementById('convertBtn').addEventListener('click', function() {
+            const input = document.getElementById('textInput').value;
+            const resultDiv = document.getElementById('result');
+            const { result, fullMatch } = convertToElements(input);
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = `result ${fullMatch ? 'success' : 'partial'}`;
+            
+            resultDiv.querySelector('.status-text').textContent = 
+                fullMatch ? 'PERFECT MATCH DETECTED' : 'PARTIAL MATCH DETECTED';
+            
+            resultDiv.querySelector('.converted-text').textContent = result;
+            
+            resultDiv.querySelector('.message').textContent = fullMatch
+                ? 'SUCCESS: Complete elemental conversion achieved!'
+                : 'NOTICE: Partial conversion completed. Non-element characters detected.';
+        });
+
+        // Also trigger conversion on Enter key
+        document.getElementById('textInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('convertBtn').click();
+            }
+        });
+    </script>
+</body>
+</html>
